@@ -17,153 +17,155 @@ from summary_module.extract_actions import extract_actions
 
 import time
 
-meeting_link = input("Enter meeting link: ")
-open_meeting(meeting_link)
-time.sleep(8)
 
-last_text = ""
-skip_next = False
+def run_meeting_bot(meeting_link):
 
-speaker_memory = {}
-meeting_memory = []
+    open_meeting(meeting_link)
+    time.sleep(8)
 
-while True:
-    print("\n--- Listening ---")
+    last_text = ""
+    skip_next = False
 
-    if skip_next:
-        skip_next = False
-        print("Cooldown cycle skipped")
+    speaker_memory = {}
+    meeting_memory = []
+
+    while True:
+        print("\n--- Listening ---")
+
+        if skip_next:
+            skip_next = False
+            print("Cooldown cycle skipped")
+            time.sleep(1)
+            continue
+
         time.sleep(1)
-        continue
 
-    time.sleep(1)
+        ok = get_audio()
 
-    ok = get_audio()
+        if not ok:
+            print("No audio file")
+            continue
 
-    if not ok:
-        print("No audio file")
-        continue
+        text = convert_to_text()
 
-    text = convert_to_text()
+        if not text:
+            continue
 
-    if not text:
-        continue
+        cleaned_text = text.lower().strip()
 
-    cleaned_text = text.lower().strip()
+        if "stop meeting" in cleaned_text:
+            leave_meeting(meeting_link)
+            print("Meeting ending...")
+            break
 
-    if "stop meeting" in cleaned_text:
-        leave_meeting(meeting_link)
-        print("Meeting ending...")
-        break
+        if len(cleaned_text) > 3 and cleaned_text != last_text:
 
-    if len(cleaned_text) > 3 and cleaned_text != last_text:
+            wake_words = ["aiqod", "assistant", "bot"]
 
-        wake_words = ["aiqod", "assistant", "bot"]
+            if (("?" in text or
+                 "how" in cleaned_text or
+                 "what" in cleaned_text or
+                 "why" in cleaned_text or
+                 "can" in cleaned_text or
+                 "could" in cleaned_text or
+                 "do" in cleaned_text or
+                 "is" in cleaned_text)
+                 and (any(word in cleaned_text for word in wake_words) or "?" in text)):
 
-        if (("?" in text or
-             "how" in cleaned_text or
-             "what" in cleaned_text or
-             "why" in cleaned_text or
-             "can" in cleaned_text or
-             "could" in cleaned_text or
-             "do" in cleaned_text or
-             "is" in cleaned_text)
-             and (any(word in cleaned_text for word in wake_words) or "?" in text)):
+                parts = text.split(" and ")
 
-            parts = text.split(" and ")
+                for part in parts:
+                    clean_part = part.strip()
 
-            for part in parts:
-                clean_part = part.strip()
+                    if len(clean_part) > 2:
 
-                if len(clean_part) > 2:
+                        speaker = detect_speaker()
+                        print("Speaker:", speaker)
 
-                    speaker = detect_speaker()
-                    print("Speaker:", speaker)
+                        previous = speaker_memory.get(speaker, {}).get("last_text", "")
 
-                    previous = speaker_memory.get(speaker, {}).get("last_text", "")
+                        recent_context = ""
 
-                    recent_context = ""
+                        if meeting_memory:
+                            recent_context = str(meeting_memory[-5:])
 
-                    if meeting_memory:
-                        recent_context = str(meeting_memory[-5:])
+                        combined_text = recent_context + " " + previous + " " + clean_part
 
-                    combined_text = recent_context + " " + previous + " " + clean_part
+                        reply = generate_reply(combined_text)
+                        print("AI Reply:", reply)
 
-                    reply = generate_reply(combined_text)
-                    print("AI Reply:", reply)
+                        speaker_memory[speaker] = {
+                            "last_text": clean_part,
+                            "last_reply": reply,
+                            "time": time.time()
+                        }
 
-                    speaker_memory[speaker] = {
-                        "last_text": clean_part,
-                        "last_reply": reply,
-                        "time": time.time()
-                    }
+                        meeting_memory.append({
+                            "speaker": speaker,
+                            "text": clean_part,
+                            "reply": reply
+                        })
 
-                    meeting_memory.append({
-                        "speaker": speaker,
-                        "text": clean_part,
-                        "reply": reply
-                    })
+                        if len(meeting_memory) > 20:
+                            meeting_memory.pop(0)
 
-                    if len(meeting_memory) > 20:
-                        meeting_memory.pop(0)
+                        if len(speaker_memory) > 10:
+                            oldest = list(speaker_memory.keys())[0]
+                            del speaker_memory[oldest]
 
-                    if len(speaker_memory) > 10:
-                        oldest = list(speaker_memory.keys())[0]
-                        del speaker_memory[oldest]
+                        short_reply = reply.split(".")[0]
 
-                    short_reply = reply.split(".")[0]
+                        if len(short_reply) < 5:
+                            short_reply = reply[:120]
 
-                    if len(short_reply) < 5:
-                        short_reply = reply[:120]
+                        raise_hand(meeting_link)
+                        time.sleep(1)
 
-                    raise_hand(meeting_link)
-                    time.sleep(1)
+                        unmute_mic(meeting_link)
+                        time.sleep(1.5)
 
-                    unmute_mic(meeting_link)
-                    time.sleep(1.5)
+                        speak_text(short_reply)
 
-                    speak_text(short_reply)
+                        time.sleep(1)
 
-                    time.sleep(1)
+                        mute_mic(meeting_link)
+                        lower_hand(meeting_link)
 
-                    mute_mic(meeting_link)
-                    lower_hand(meeting_link)
+                        skip_next = True
 
-                    skip_next = True
+                        with open("meeting_log.txt", "a", encoding="utf-8") as f:
+                            f.write("Speaker: " + speaker + "\n")
+                            f.write("Text: " + clean_part + "\n")
+                            f.write("AI: " + reply + "\n\n")
 
-                    with open("meeting_log.txt", "a", encoding="utf-8") as f:
-                        f.write("Speaker: " + speaker + "\n")
-                        f.write("Text: " + clean_part + "\n")
-                        f.write("AI: " + reply + "\n\n")
+                        break
 
-                    break
+                last_text = cleaned_text
 
-            last_text = cleaned_text
+            else:
+                print("No valid question for AI")
 
         else:
-            print("No valid question for AI")
+            print("Repeated or unclear speech")
 
-    else:
-        print("Repeated or unclear speech")
+    with open("meeting_log.txt", "r", encoding="utf-8") as f:
+        full_text = f.read()
 
-with open("meeting_log.txt", "r", encoding="utf-8") as f:
-    full_text = f.read()
+    if not full_text.strip():
+        full_text = "No meeting data available"
 
-if not full_text.strip():
-    full_text = "No meeting data available"
+    summary = create_summary(full_text)
 
-summary = create_summary(full_text)
+    print("\nFinal Summary:")
+    print(summary)
 
-print("\nFinal Summary:")
-print(summary)
+    with open("final_summary.txt", "w", encoding="utf-8") as f:
+        f.write(summary)
 
-with open("final_summary.txt", "w", encoding="utf-8") as f:
-    f.write(summary)
+    actions = extract_actions(full_text)
 
-actions = extract_actions(full_text)
+    print("\nAction Items:")
+    print(actions)
 
-print("\nAction Items:")
-print(actions)
-
-with open("final_actions.txt", "w", encoding="utf-8") as f:
-    f.write(actions)
+    with open("final_actions.txt", "w", encoding="utf-8") as f:
+        f.write(actions)
