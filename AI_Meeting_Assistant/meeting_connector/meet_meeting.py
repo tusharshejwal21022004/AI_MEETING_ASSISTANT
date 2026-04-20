@@ -1,25 +1,17 @@
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import time
 
 options = Options()
-
-options.binary_location = "/snap/bin/chromium"
-options.add_argument("--user-data-dir=/home/azureuser/bot-profile")
+options.add_argument(r"--user-data-dir=C:\bot-profile")
 options.add_argument("--use-fake-ui-for-media-stream")
-options.add_argument("--use-fake-device-for-media-stream")
-options.add_argument("--headless=new")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
-options.add_argument("--disable-gpu")
 
 driver = webdriver.Chrome(options=options)
 
-def open_meeting(meeting_link):
-    driver.get(meeting_link)
-    time.sleep(8)
+def open_meeting():
+    driver.get("https://meet.google.com/akf-sbdj-shz")
+    time.sleep(10)
 
     mute_mic()
     time.sleep(1)

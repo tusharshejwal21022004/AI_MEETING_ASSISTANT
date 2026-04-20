@@ -19,9 +19,9 @@ options.add_argument("--disable-gpu")
 
 driver = webdriver.Chrome(options=options)
 
-def open_meeting(meeting_link):
+def join_zoom_meeting():
 
-    driver.get(meeting_link)
+    driver.get("https://us05web.zoom.us/j/88089653231?pwd=1NaD7u5d5CSQ37ccf0YU8y5SbqIBca.1")
     time.sleep(8)
 
     buttons = driver.find_elements(By.TAG_NAME, "button")
@@ -136,84 +136,6 @@ def unmute_mic():
         if "unmute" in button.text.lower():
             driver.execute_script("arguments[0].click();", button)
             print("Mic on")
-            break
-
-def raise_hand():
-    driver.switch_to.default_content()
-
-    iframe = WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.ID, "webclient"))
-    )
-
-    driver.switch_to.frame(iframe)
-
-    buttons = driver.find_elements(By.TAG_NAME, "button")
-
-    for button in buttons:
-        label = button.get_attribute("aria-label")
-
-        if label and "reaction" in label.lower():
-            driver.execute_script("arguments[0].click();", button)
-            print("Reactions opened")
-            time.sleep(2)
-            break
-
-    buttons = driver.find_elements(By.TAG_NAME, "button")
-
-    for button in buttons:
-        txt = button.text.lower()
-
-        if "raise hand" in txt:
-            driver.execute_script("arguments[0].click();", button)
-            print("Hand raised")
-            break
-
-
-def lower_hand():
-    driver.switch_to.default_content()
-
-    iframe = WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.ID, "webclient"))
-    )
-
-    driver.switch_to.frame(iframe)
-
-    buttons = driver.find_elements(By.TAG_NAME, "button")
-
-    for button in buttons:
-        label = button.get_attribute("aria-label")
-
-        if label and "reaction" in label.lower():
-            driver.execute_script("arguments[0].click();", button)
-            print("Reactions opened")
-            time.sleep(2)
-            break
-
-    buttons = driver.find_elements(By.TAG_NAME, "button")
-
-    for button in buttons:
-        if "lower hand" in button.text.lower():
-            driver.execute_script("arguments[0].click();", button)
-            print("Hand lowered")
-            break
-
-def leave_meeting():
-    driver.switch_to.default_content()
-
-    iframe = WebDriverWait(driver, 20).until(
-        EC.presence_of_element_located((By.ID, "webclient"))
-    )
-
-    driver.switch_to.frame(iframe)
-
-    buttons = driver.find_elements(By.TAG_NAME, "button")
-
-    for button in buttons:
-        label = button.get_attribute("aria-label")
-
-        if label and "leave" in label.lower():
-            driver.execute_script("arguments[0].click();", button)
-            print("Meeting left")
             break
 
 if __name__ == "__main__":

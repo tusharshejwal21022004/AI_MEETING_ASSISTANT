@@ -1,0 +1,32 @@
+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
+
+python version  py -3.11 --version
+
+Audio library install
+
+py -3.11 -m pip install pyaudio numpy sounddevice soundfile
+
+speech_to_text convertor 
+
+py -3.11 -m pip install openai-whisper torch torchaudio , assembly ai, search ajun
+
+Speaker Identification Module.
+
+pip install pyannote.audio
+
+Text to Speech
+
+pip install pyttsx3
+
+Avatar Integration
+
+
+meeting_connector
+
+py -3.11 -m pip install selenium
+
+teams,zoom sathi
+deploy kuthe karaych
+
+host karaych
+scalabe kraychya

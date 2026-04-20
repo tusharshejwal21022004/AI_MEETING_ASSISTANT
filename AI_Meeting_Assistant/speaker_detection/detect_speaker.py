@@ -3,26 +3,18 @@ import librosa
 import torch
 import os
 
-pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization-3.1")
-
-last_speaker = "Unknown Speaker"
-
+pipeline = Pipeline.from_pretrained(
+    "pyannote/speaker-diarization-3.1",
+    token="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"
+)
 
 def detect_speaker():
-    global last_speaker
-
     audio_file = r"C:\Users\VIRAJ\OneDrive\Desktop\AI_Meeting_Assistant\live_audio.wav"
 
     if not os.path.exists(audio_file):
-        return last_speaker
+        return "No Speaker"
 
     waveform, sample_rate = librosa.load(audio_file, sr=None, mono=True)
-
-    duration = len(waveform) / sample_rate
-
-    if duration < 2:
-        return last_speaker
-
     waveform = torch.tensor(waveform).unsqueeze(0)
 
     diarization = pipeline({
@@ -36,7 +28,6 @@ def detect_speaker():
         speakers.append(label)
 
     if speakers:
-        last_speaker = speakers[-1]
-        return last_speaker
+        return speakers[-1]
 
-    return last_speaker
+    return "Unknown Speaker"
