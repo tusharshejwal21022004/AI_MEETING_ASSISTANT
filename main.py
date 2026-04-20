@@ -9,16 +9,21 @@ def home():
 
 @app.route("/join", methods=["POST"])
 def join():
-    from main_local import run_meeting_bot
-    link = request.form["meeting_link"]
-
     try:
-        bot_thread = threading.Thread(target=run_meeting_bot, args=(link,), daemon=True)
+        from main_local import run_meeting_bot
+        link = request.form["meeting_link"]
+
+        bot_thread = threading.Thread(
+            target=run_meeting_bot,
+            args=(link,),
+            daemon=True
+        )
         bot_thread.start()
+
         return f"Meeting bot started for: {link}"
 
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Join Error: {str(e)}"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
