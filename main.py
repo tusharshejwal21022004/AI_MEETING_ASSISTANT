@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-from main_local import run_meeting_bot
 import threading
 
 app = Flask(__name__)
@@ -10,10 +9,11 @@ def home():
 
 @app.route("/join", methods=["POST"])
 def join():
+    from main_local import run_meeting_bot
     link = request.form["meeting_link"]
 
     try:
-        bot_thread = threading.Thread(target=run_meeting_bot, args=(link,))
+        bot_thread = threading.Thread(target=run_meeting_bot, args=(link,), daemon=True)
         bot_thread.start()
         return f"Meeting bot started for: {link}"
 
