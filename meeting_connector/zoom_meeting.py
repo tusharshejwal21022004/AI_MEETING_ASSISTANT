@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
@@ -17,8 +18,10 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 
+service = Service("/usr/bin/chromedriver")
+
 print("Launching Chrome...")
-driver = webdriver.Chrome(options=options)
+driver = webdriver.Chrome(service=service, options=options)
 print("Chrome launched")
 
 def open_meeting(meeting_link):
