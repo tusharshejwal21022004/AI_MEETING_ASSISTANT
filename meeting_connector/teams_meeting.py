@@ -5,12 +5,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-options = Options()
-options.add_argument(r"--user-data-dir=C:\bot-profile")
+options.binary_location = "/usr/bin/google-chrome"
+options.add_argument("--user-data-dir=/home/azureuser/bot-profile")
 options.add_argument("--use-fake-ui-for-media-stream")
 options.add_argument("--use-fake-device-for-media-stream")
+options.add_argument("--headless=new")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-gpu")
 
+
+print("Launching Chrome...")
 driver = webdriver.Chrome(options=options)
+print("Chrome launched")
 
 
 def open_meeting(meeting_link):

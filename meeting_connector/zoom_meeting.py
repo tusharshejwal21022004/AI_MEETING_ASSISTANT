@@ -8,7 +8,7 @@ import time
 
 options = Options()
 
-options.binary_location = "/snap/bin/chromium"
+options.binary_location = "/usr/bin/google-chrome"
 options.add_argument("--user-data-dir=/home/azureuser/bot-profile")
 options.add_argument("--use-fake-ui-for-media-stream")
 options.add_argument("--use-fake-device-for-media-stream")
@@ -17,7 +17,9 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 
+print("Launching Chrome...")
 driver = webdriver.Chrome(options=options)
+print("Chrome launched")
 
 def open_meeting(meeting_link):
 
