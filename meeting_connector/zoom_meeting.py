@@ -9,7 +9,7 @@ import time
 
 options = Options()
 
-options.binary_location = "/usr/bin/google-chrome"
+options.binary_location = "/opt/google/chrome/google-chrome"
 options.add_argument("--user-data-dir=/home/azureuser/bot-profile")
 options.add_argument("--use-fake-ui-for-media-stream")
 options.add_argument("--use-fake-device-for-media-stream")
